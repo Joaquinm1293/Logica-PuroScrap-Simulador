@@ -12,9 +12,9 @@ n0 = (ahora.hour * 3600) + (ahora.minute * 60) + ahora.second
 def gu() -> float:
     global n0  # Le dice a la función que use y actualice el 'n0' de arriba
     
-    a = 10
-    c = 5
-    m = 10000
+    a = 1664525
+    c = 1013904223
+    m = 2**32
     digitos = 5
     
     n0 = (a * n0 + c) % m
