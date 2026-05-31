@@ -27,7 +27,16 @@ def exponencial_inversa(media: float = 7.0) -> float:
     return -media * math.log(u)
 
 def normal_distribucion(media: float, desv: float = 1.6) -> float:
-    return max(0.0, np.random.normal(media, desv))
+    u1 = gu();
+    u2 = gu();
+
+    if u1 == 0:
+        u1 = 1e-10
+
+    z = math.sqrt(-2 * math.log(u1)) * math.cos(2 * math.pi * u2)
+    valor = media + desv * z
+    
+    return max(0.0, valor)
 
 def uniforme(minimo: float = 15.0, maximo: float = 30.0) -> float:
     return minimo + (maximo - minimo) * gu()
