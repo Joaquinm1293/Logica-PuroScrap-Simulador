@@ -50,11 +50,11 @@ def simular(
         description="Cantidad de teclados a procesar (requerido, 1–10000)"
     ),
     min_empleados: int = Query(
-        1, ge=1, le=50,
+        1, ge=1, le=100,
         description="Mínimo de empleados a evaluar (default=1)"
     ),
     max_empleados: int = Query(
-        10, ge=1, le=52,
+        10, ge=1, le=100,
         description="Máximo de empleados a evaluar (default=10)"
     ),
     costo_hora: float = Query(
