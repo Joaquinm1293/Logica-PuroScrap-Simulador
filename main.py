@@ -54,7 +54,7 @@ def simular(
         description="Mínimo de empleados a evaluar (default=1)"
     ),
     max_empleados: int = Query(
-        10, ge=1, le=50,
+        10, ge=1, le=52,
         description="Máximo de empleados a evaluar (default=10)"
     ),
     costo_hora: float = Query(
