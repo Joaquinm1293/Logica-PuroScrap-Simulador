@@ -1,7 +1,6 @@
 import uvicorn
 from typing import List, Optional
 from fastapi import FastAPI, Query, HTTPException
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware 
 from esquemas import SimulacionOut
 from simulador import ejecutar_simulacion
@@ -11,6 +10,7 @@ app = FastAPI(
     description = "Simulación Montecarlo de planta de reciclaje electrónico.",
     version     = "1.0.0",
 )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Permite que cualquier frontend se conecte
@@ -19,11 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.get("/health", summary="Estado de la API")
 def health():
     return {"status": "ok", "service": "PuroScrap API v1.0.0"}
-
 
 @app.get(
     "/simular",
@@ -37,11 +35,9 @@ y devuelve la tabla comparativa de rentabilidad por número de empleados.
 
 **Parámetros opcionales con defaults razonables:**
 - `min_empleados` / `max_empleados`: rango a evaluar (default 1–10)
-- `cantidad_mesas`: capacidad física del galpón (default 5)
 - `costo_hora`: $/hora-hombre (default 4500)
-- `costo_fijo_diario`: costo fijo del galpón por día (default 20000)
+- `costo_por_unidad`: costo de almacenamiento por unidad/día (default 0.50)
 - `horas_jornada`: horas por jornada (default 8)
-- `semilla`: para reproducibilidad (default: aleatorio)
     """,
 )
 def simular(
@@ -61,48 +57,38 @@ def simular(
         10, ge=1, le=50,
         description="Máximo de empleados a evaluar (default=10)"
     ),
-    cantidad_mesas: int = Query(
-        5, ge=1, le=50,
-        description="Capacidad física máxima de operarios simultáneos (default=5)"
-    ),
     costo_hora: float = Query(
         4_500, ge=1,
         description="Costo por hora-hombre en $ (default=4500)"
     ),
-    costo_fijo_diario: float = Query(
-        20_000, ge=0,
-        description="Costo fijo del galpón por día en $ (default=20000)"
+    costo_por_unidad: float = Query( # <--- CAMBIO AQUÍ
+        0.50, ge=0,
+        description="Costo de almacenamiento por unidad al día en $ (default=0.50)"
     ),
     horas_jornada: int = Query(
         8, ge=1, le=24,
         description="Horas de trabajo por jornada (default=8)"
     ),
-    semilla: Optional[int] = Query(
-        None,
-        description="Semilla RNG para reproducibilidad (default: aleatorio)"
-    ),
 ):
-    # Validaciones de negocio
+
     if min_empleados > max_empleados:
         raise HTTPException(
             status_code=422,
             detail="min_empleados no puede ser mayor que max_empleados."
         )
 
+    # Llamada al simulador con el nuevo nombre de parámetro
     resultado = ejecutar_simulacion(
-        cant_mouses       = cant_mouses,
-        cant_teclados     = cant_teclados,
-        costo_hora        = costo_hora,
-        horas_jornada     = horas_jornada,
-        cantidad_mesas    = cantidad_mesas,
-        costo_fijo_diario = costo_fijo_diario,
-        min_empleados     = min_empleados,
-        max_empleados     = max_empleados,
-        semilla           = semilla,
+        cant_mouses      = cant_mouses,
+        cant_teclados    = cant_teclados,
+        costo_hora       = costo_hora,
+        horas_jornada    = horas_jornada,
+        costo_por_unidad = costo_por_unidad, 
+        min_empleados    = min_empleados,
+        max_empleados    = max_empleados,
     )
 
-    return JSONResponse(content=resultado)
-
+    return resultado 
 
 
 if __name__ == "__main__":
